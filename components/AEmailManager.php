@@ -8,7 +8,7 @@ Yii::import("packages.email.mailers.*");
 class AEmailManager extends CApplicationComponent {
 	/**
 	 * Holds the email sender
-	 * @var AEmailMailer
+	 * @var AEmailer
 	 */
 	protected $_mailer;
 
@@ -20,7 +20,7 @@ class AEmailManager extends CApplicationComponent {
 
 	/**
 	 * Gets the mailer to use when sending email
-	 * @return AEmailMailer the email mailer to use
+	 * @return AEmailer the email mailer to use
 	 */
 	public function getMailer() {
 		if ($this->_mailer === null) {
@@ -30,8 +30,8 @@ class AEmailManager extends CApplicationComponent {
 	}
 	/**
 	 * Sets the email sender
-	 * @param array|AEmailMailer either an email sender instance or the configuration for one
-	 * @return AEmailMailer the email sender
+	 * @param array|AEmailer either an email sender instance or the configuration for one
+	 * @return AEmailer the email sender
 	 */
 	public function setMailer($sender) {
 		if (!is_object($sender) || !($sender instanceof AEmailer)) {
