@@ -12,25 +12,31 @@ class APHPEmailer extends AEmailer {
 	 */
 	public function send(AEmail $email) {
 		$headers = $this->buildHeaders($email);
-		$message = $this->encodeMessage($email);
-		foreach($email->attachments as $attachment) {
-			$message .= $this->encodeAttachment($attachment,$email);
-		}
-		$message .= "--".$email->getUniqueId()."--";
+		if (count($email->attachments))
+			$message = $this->encodeMessageWithAttachments();
+		else
+			$message = $email->render();
+
+
 		return mail($email->recipient,$email->subject,$message,$headers);
 	}
+
 	/**
-	 * Encodes an email message before sending
+	 * Encodes an email message with attachment(s) before sending
 	 * @param AEmail $email the email being sent
 	 * @return string the encoded message
 	 */
-	protected function encodeMessage(AEmail $email) {
+	protected function encodeMessageWithAttachments(AEmail $email) {
 		$encoded = array();
 		$encoded[] = "--".$email->getUniqueId();
 		$encoded[] = "Content-Type: ".($email->isHtml ? "text/html" : "text/plain")."; charset=".Yii::app()->charset;
 		$encoded[] = "Content-Transfer-Encoding: base64";
 		$encoded = implode("\r\n",$encoded)."\r\n";
 		$encoded .= chunk_split(base64_encode($email->render()));
+		foreach($email->attachments as $attachment) {
+			$encoded .= $this->encodeAttachment($attachment,$email);
+		}
+		$encoded .= "--".$email->getUniqueId()."--";
 		return $encoded;
 	}
 
@@ -52,7 +58,10 @@ class APHPEmailer extends AEmailer {
 		if ($email->bcc != "") {
 			$headers[] = "BCC: ".$email->bcc;
 		}
-		$headers[] = "Content-Type: multipart/mixed; boundary = ".$email->getUniqueId();
+		if (count($email->attachments))
+			$headers[] = "Content-Type: multipart/mixed; boundary = ".$email->getUniqueId();
+		else
+			$headers[] = "Content-Type: ".($email->isHtml ? "text/html" : "text/plain")."; charset=".Yii::app()->charset;
 		return implode("\r\n",$headers)."\r\n";
 	}
 
