@@ -13,7 +13,7 @@ class APHPEmailer extends AEmailer {
 	public function send(AEmail $email) {
 		$headers = $this->buildHeaders($email);
 		if (count($email->attachments))
-			$message = $this->encodeMessageWithAttachments();
+			$message = $this->encodeMessageWithAttachments($email);
 		else
 			$message = $email->render();
 
